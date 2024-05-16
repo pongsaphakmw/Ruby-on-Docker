@@ -1,0 +1,36 @@
+name: ruby-on-docker
+services:
+  web:
+    build: .
+    command: bundle exec rails s -p 3000 -b "0.0.0.0"
+    volumes:
+      - .:/rails
+    ports: 
+      - "3000:3000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    container_name: pg15
+    volumes:
+      - postgres_data:/var/run/postgresql/data
+    command: 
+      "postgres -c 'max_connections=500'"
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      
+volumes:
+  app-storage: {}
+  postgres_data: {}
+
+networks:
+  default: {}
